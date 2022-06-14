@@ -1,0 +1,34 @@
+.filteredBtn {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 20px;
+}
+.content{
+    width: 500px;
+    border: 2px white solid;
+    background-color: #1B3249FF;
+    display: grid;
+    align-content: center;
+    justify-content: center;
+}
+.addTask{
+    display: flex;
+}
+.myTask{
+    display: grid;
+    grid-template-columns: 27px 45px 50px;
+    width: 250px;
+}
+.errorMessage{
+    color: red;
+}
+
+.error {
+    border: 2px red solid;
+    background-color: red;
+}
+
+.buttonActive {
+    background-color: #0D75DEFF;
+    border: none;
+}
