@@ -3,7 +3,7 @@ import './App.css';
 import {v1} from "uuid";
 import {TodoList} from "./components/TodoList/TodoList";
 
-export type NameBtnType = 'all' | 'completed' | 'active'
+export type NameBtnType = 'all' | 'completed' | 'active';
 
 function App() {
 
