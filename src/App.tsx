@@ -1,63 +1,98 @@
 import React, {useState} from 'react';
 import './App.css';
 import {v1} from "uuid";
-import {TodoList} from "./components/TodoList/TodoList";
+import {TaskType, TodoList} from "./components/TodoList/TodoList";
 
 export type NameBtnType = 'all' | 'completed' | 'active';
 
+type TodoListType = {
+    id: string,
+    title: string,
+    filter: NameBtnType
+}
+
+type TaskStateType = {
+    [todoListID: string]: Array<TaskType>
+}
+
 function App() {
 
-    let [tasks, setTasks] = useState([
-        {id: v1(), title: "HTML&CSS", isDone: true},
-        {id: v1(), title: "JS", isDone: true},
-        {id: v1(), title: "ReactJS", isDone: false},
-        {id: v1(), title: "RestAPI", isDone: false},
-        {id: v1(), title: "GraphQL", isDone: false},
-    ]);
+    const todoListID_1 = v1();
+    const todoListID_2 = v1();
 
-    let [nameButton, setNameButton] = useState<NameBtnType>('all')
+    const [todoList, setTodoList] = useState<Array<TodoListType>>([ // тудушки
+        {id: todoListID_1, title: 'What to learn', filter: 'all'},
+        {id: todoListID_2, title: 'What a buy', filter: 'all'}
+    ])
 
-    let copyTasks = tasks
+    const [tasks, setTasks] = useState<TaskStateType>({ // таски для туду
+        [todoListID_1]: [
+            {id: v1(), title: "HTML&CSS", isDone: true},
+            {id: v1(), title: "JS/TS", isDone: true},
+            {id: v1(), title: "React", isDone: false},
+        ],
+        [todoListID_2]: [
+            {id: v1(), title: "HTML&CSS", isDone: true},
+            {id: v1(), title: "JS/TS", isDone: true},
+            {id: v1(), title: "React", isDone: false},
+        ],
+    })
 
-    if (nameButton === 'active') {
-        copyTasks = copyTasks.filter(el => el.isDone === false)
+    const filteredTasks = (todoListID: string, valueName: NameBtnType) => {
+        setTodoList(todoList.map(el => el.id === todoListID ? {...el, filter: valueName} : el))
     }
 
-    if (nameButton === 'completed') {
-        copyTasks = copyTasks.filter(el => el.isDone === true)
+    const removeTask = (todoListID: string, taskId: string) => {
+        setTasks({...tasks,[todoListID]: tasks[todoListID].filter(el => el.id !== taskId)})
     }
 
-    const filteredTasks = (valueName: NameBtnType) => {
-        setNameButton(valueName)
-    }
-
-    const removeTask = (taskId: string) => {
-        setTasks(copyTasks.filter(el => el.id !== taskId))
-    }
-
-    const addTask = (valueOnChange: string) => {
-        let newTask = {
+    const addTask = (todoListID: string, title: string) => {
+        let newTask:TaskType = {
             id: v1(),
-            title: valueOnChange,
+            title: title,
             isDone: false
         }
-        setTasks([newTask, ...tasks])
+        setTasks({...tasks, [todoListID]:[newTask, ...tasks[todoListID]]})
     }
 
-    const changeCheckBox = (taskId: string, valueChecked: boolean) => {
-        setTasks(tasks.map(el => el.id === taskId ? {...el, isDone: valueChecked} : el))
+    const changeCheckBox = (todoListID: string, taskId: string, valueChecked: boolean) => {
+        setTasks({
+            ...tasks,
+            [todoListID]: tasks[todoListID].map(el => el.id === taskId ? {...el, isDone: valueChecked} : el)
+        })
     }
 
-    return (
-        <div className='App-header'>
+    const components = todoList.map(el => {
+
+        let copyTasks = tasks[el.id]
+
+        if (el.filter === 'active') {
+            copyTasks = tasks[el.id].filter(el => el.isDone === false)
+        }
+
+        if (el.filter === 'completed') {
+            copyTasks = tasks[el.id].filter(el => el.isDone === true)
+        }
+
+        return (
             <TodoList
-                nameButton={nameButton}
+                key={el.id}
+                title={el.title}
+                nameButton={el.filter}
                 changeCheckBox={changeCheckBox}
                 addTask={addTask}
                 removeTask={removeTask}
                 filteredTasks={filteredTasks}
-                nameTasks={'My tasks:'}
-                tasks={copyTasks}/>
+                tasks={copyTasks}
+                todoListID={el.id}
+            />
+        )
+    })
+
+
+    return (
+        <div className='App-header'>
+            {components}
         </div>
     );
 }

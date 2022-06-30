@@ -3,7 +3,7 @@ import {Button} from "../Button/Button";
 import classes from "./TodoList.module.css";
 import {NameBtnType} from "../../App";
 
-type TaskType = {
+export type TaskType = {
     id: string
     title: string
     isDone: boolean
@@ -11,44 +11,43 @@ type TaskType = {
 
 type TodoListType = {
     tasks: Array<TaskType>
-    filteredTasks: (valueName: NameBtnType) => void
-    removeTask: (taskId: string) => void
-    addTask: (valueOnChange: string) => void
-    changeCheckBox: (taskId: string, valueChecked: boolean) => void
-    nameTasks: string
+    filteredTasks: (todoListID: string, valueName: NameBtnType) => void
+    removeTask: (todoListID: string, taskId: string) => void
+    addTask: (todoListID: string, title: string) => void
+    changeCheckBox: (todoListID: string, taskId: string, valueChecked: boolean) => void
+    title: string
     nameButton:string
-
+    todoListID:string
 }
 
 export const TodoList = (props: TodoListType) => {
 
-    let [valueOnChange, setValueOnChange] = useState('')
+    let [title, setTitle] = useState('')
     let [error, setError] = useState<string | null>(null)
 
     const filteredTasksHandler = (valueFilterTask: NameBtnType) => {
-        props.filteredTasks(valueFilterTask)
+        props.filteredTasks(props.todoListID, valueFilterTask)
     }
 
     const removeTaskHandler = (taskId: string) => {
-        props.removeTask(taskId)
+        props.removeTask(props.todoListID, taskId)
     }
 
     const addTaskHandler = () => {
-        if (valueOnChange.trim() !== '') {
-            props.addTask(valueOnChange.trim())
-            setValueOnChange('')
+        if (title.trim() !== '') {
+            props.addTask(props.todoListID, title.trim())
+            setTitle('')
         } else {
             setError('Wrong name')
         }
     }
 
     const onChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-        setValueOnChange(event.currentTarget.value)
+        setTitle(event.currentTarget.value)
     }
 
-    const onChangeCheckBoxHandler = (taskId: string, valueChecked: boolean) => {
-        props.changeCheckBox(taskId, valueChecked)
-
+    const onChangeCheckBoxHandler = (todoListID: string, taskId: string, valueChecked: boolean) => {
+        props.changeCheckBox(todoListID, taskId, valueChecked)
     }
 
     const onkeydownHandler = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -63,13 +62,13 @@ export const TodoList = (props: TodoListType) => {
         <div className={classes.content}>
             <ul>
                 <div>
-                    <h1>{props.nameTasks}</h1>
+                    <h1>{props.title}</h1>
                 </div>
                 <div className={classes.addTask}>
                     <div>
                         <input className={error ? classes.error : ''}
                                onKeyDown={onkeydownHandler}
-                               value={valueOnChange}
+                               value={title}
                                onChange={onChangeHandler}/>
                     </div>
                     <div>
@@ -84,7 +83,7 @@ export const TodoList = (props: TodoListType) => {
                             <li key={el.id} className={classes.myTask}>
                                 <div>
                                     <input
-                                        onChange={(event) => onChangeCheckBoxHandler(el.id, event.currentTarget.checked)}
+                                        onChange={(event) => onChangeCheckBoxHandler(props.todoListID, el.id, event.currentTarget.checked)}
                                         type={"checkbox"} checked={el.isDone}/>
                                 </div>
                                 <div>
@@ -103,7 +102,6 @@ export const TodoList = (props: TodoListType) => {
                     <button className={props.nameButton === 'completed' ? classes.buttonActive : ''} onClick={() => filteredTasksHandler('completed')}> Completed </button>
                 </div>
             </ul>
-
         </div>
     );
 };
